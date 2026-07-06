@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: postgres
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/hiver-hitesh/items-gitops.git
+    targetRevision: HEAD
+    path: charts/postgres        # ArgoCD sees Chart.yaml → renders via `helm template`
+    helm:
+      releaseName: pg            # keep object names = pg-postgres (matches items-api's secret ref + PVC)
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: items
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    # no 'automated:' block yet → MANUAL sync (your choice)

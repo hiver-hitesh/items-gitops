@@ -1,0 +1,25 @@
+image:
+  repository: postgres
+  tag: "16"
+
+# Dev credentials. NOTE: these end up base64'd in a Secret (not encrypted).
+# For real GitOps we'd use Sealed Secrets / External Secrets — a later lesson.
+auth:
+  username: appuser
+  password: apppassword
+  database: appdb
+
+service:
+  # the DNS name the app connects to: postgres-dev:5432
+  name: postgres-dev
+  port: 5432
+
+persistence:
+  size: 1Gi
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    memory: 256Mi

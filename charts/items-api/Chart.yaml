@@ -1,0 +1,6 @@
+apiVersion: v2
+name: items-api
+description: FastAPI Items API (connects to in-cluster Postgres)
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

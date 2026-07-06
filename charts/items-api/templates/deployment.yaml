@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-items-api
+  labels:
+    app: items-api
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: items-api
+  template:
+    metadata:
+      labels:
+        app: items-api
+    spec:
+      containers:
+      - name: items-api
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: 8000
+        env:
+        # DB config as components. Non-secret bits are plain values...
+        - name: DB_HOST
+          value: {{ .Values.db.host | quote }}
+        - name: DB_PORT
+          value: {{ .Values.db.port | quote }}
+        - name: DB_NAME
+          value: {{ .Values.db.name | quote }}
+        - name: DB_USER
+          value: {{ .Values.db.user | quote }}
+        # ...the password comes from the Postgres Secret via secretKeyRef.
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.db.existingSecret }}
+              key: {{ .Values.db.passwordKey }}
+        livenessProbe:            # /healthz never touches the DB
+          httpGet:
+            path: /healthz
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:           # /readyz is 200 only when DB reachable
+          httpGet:
+            path: /readyz
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}

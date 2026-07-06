@@ -1,0 +1,26 @@
+replicaCount: 2
+
+image:
+  repository: items-api
+  tag: "0.1.0"
+  pullPolicy: IfNotPresent      # use the image we load into kind; don't try to pull
+
+service:
+  type: ClusterIP
+  port: 80                       # Service port; forwards to the container's 8000
+
+# How the app finds Postgres. Host = the headless Service from the postgres chart.
+db:
+  host: postgres-dev
+  port: 5432
+  name: appdb
+  user: appuser
+  existingSecret: pg-postgres    # Secret created by the postgres chart
+  passwordKey: POSTGRES_PASSWORD # key inside that Secret
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    memory: 256Mi
