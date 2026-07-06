@@ -2,7 +2,7 @@ replicaCount: 3
 
 image:
   repository: items-api
-  tag: "0.1.0"
+  tag: "9.9.9"
   pullPolicy: IfNotPresent      # use the image we load into kind; don't try to pull
 
 service:
