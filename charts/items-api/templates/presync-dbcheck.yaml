@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-db-check
+  annotations:
+    # run this Job in the PreSync phase — BEFORE the Deployment is applied
+    argocd.argoproj.io/hook: PreSync
+    # clean up the hook Job after it succeeds (and before re-creating next time)
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded,BeforeHookCreation
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: db-check
+        image: postgres:16
+        command: ["sh", "-c"]
+        args:
+          - |
+            echo "PreSync: waiting for Postgres at {{ .Values.db.host }}:{{ .Values.db.port }}...";
+            until pg_isready -h {{ .Values.db.host }} -p {{ .Values.db.port }} -U {{ .Values.db.user }}; do
+              echo "  db not ready, retrying in 2s"; sleep 2;
+            done;
+            echo "PreSync: DB is ready — proceeding to Sync phase."
