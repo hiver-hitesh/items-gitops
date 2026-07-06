@@ -15,6 +15,8 @@ spec:
     server: https://kubernetes.default.svc
     namespace: items
   syncPolicy:
+    automated:
+      prune: true       # delete objects removed from Git
+      selfHeal: true    # revert manual drift back to Git state
     syncOptions:
       - CreateNamespace=true
-    # no 'automated:' block yet → MANUAL sync (your choice)
